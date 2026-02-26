@@ -7,6 +7,7 @@ import noteRoutes from "./routes/noteRoutes.js";
 import callRoutes from "./routes/callRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import meetingRoutes from "./routes/meetingRoutes.js";
+import companyRoutes from "./routes/companyRoutes.js";
 
 const app = express();
 
@@ -25,5 +26,9 @@ app.use(errorHandler);
 app.get("/", (req, res) => {
   res.send("CRM Backend Running");
 });
+
+app.use("/api/companies", companyRoutes);
+
+app.use(errorHandler);
 
 export default app;
