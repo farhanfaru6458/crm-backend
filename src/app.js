@@ -8,6 +8,9 @@ import callRoutes from "./routes/callRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import meetingRoutes from "./routes/meetingRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+
+
 
 const app = express();
 
@@ -23,6 +26,7 @@ app.use("/api/meetings", meetingRoutes);
 
 app.use(errorHandler);
 
+app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
   res.send("CRM Backend Running");
 });
