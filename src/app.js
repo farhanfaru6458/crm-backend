@@ -9,6 +9,7 @@ import taskRoutes from "./routes/taskRoutes.js";
 import meetingRoutes from "./routes/meetingRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
 
 
 
@@ -32,6 +33,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/companies", companyRoutes);
+
+app.use("/api/tickets", ticketRoutes);
 
 app.use(errorHandler);
 

@@ -1,0 +1,187 @@
+import Ticket from "../models/Ticket.js";
+import mongoose from "mongoose";
+
+/* ================= CREATE ================= */
+export const createTicket = async (req, res) => {
+  try {
+    let {
+      ticketName,
+      description,
+      status,
+      source,
+      priority,
+      owner,
+      associatedDealId,
+      associatedCompanyId,
+    } = req.body;
+
+    //  Required validation
+    if (!ticketName || !status || !source || !priority || !owner) {
+      return res.status(400).json({
+        message: "All required fields must be filled",
+      });
+    }
+
+    //  Normalize enum values 
+    const normalize = (value) =>
+      value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+
+    status = normalize(status);
+    source = normalize(source);
+    priority = normalize(priority);
+
+    //  Prevent linking both
+    if (associatedDealId && associatedCompanyId) {
+      return res.status(400).json({
+        message: "Ticket cannot be linked to both Deal and Company",
+      });
+    }
+
+    //  Validate ObjectIds safely
+    const validDealId =
+      associatedDealId &&
+      mongoose.Types.ObjectId.isValid(associatedDealId)
+        ? associatedDealId
+        : null;
+
+    const validCompanyId =
+      associatedCompanyId &&
+      mongoose.Types.ObjectId.isValid(associatedCompanyId)
+        ? associatedCompanyId
+        : null;
+
+    const ticket = await Ticket.create({
+      ticketName,
+      description: description || "",
+      status,
+      source,
+      priority,
+      owner,
+      associatedDealId: validDealId,
+      associatedCompanyId: validCompanyId,
+      user: req.user.id,
+    });
+
+    res.status(201).json(ticket);
+  } catch (error) {
+    console.error("CREATE TICKET ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= GET ALL ================= */
+export const getTickets = async (req, res) => {
+  try {
+    const tickets = await Ticket.find({ user: req.user.id })
+      .populate("associatedDealId", "dealName")
+      .populate("associatedCompanyId", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(tickets);
+  } catch (error) {
+    console.error("GET TICKETS ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= GET SINGLE ================= */
+export const getTicketById = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+    })
+      .populate("associatedDealId", "dealName")
+      .populate("associatedCompanyId", "name");
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.status(200).json(ticket);
+  } catch (error) {
+    console.error("GET TICKET ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= UPDATE ================= */
+export const updateTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const {
+      ticketName,
+      description,
+      status,
+      source,
+      priority,
+      owner,
+      associatedDealId,
+      associatedCompanyId,
+    } = req.body;
+
+    // Prevent linking both
+    if (associatedDealId && associatedCompanyId) {
+      return res.status(400).json({
+        message: "Ticket cannot be linked to both Deal and Company",
+      });
+    }
+
+    //  Validate ObjectIds safely
+    const validDealId =
+      associatedDealId &&
+      mongoose.Types.ObjectId.isValid(associatedDealId)
+        ? associatedDealId
+        : null;
+
+    const validCompanyId =
+      associatedCompanyId &&
+      mongoose.Types.ObjectId.isValid(associatedCompanyId)
+        ? associatedCompanyId
+        : null;
+
+    //  Update fields safely
+    ticket.ticketName = ticketName ?? ticket.ticketName;
+    ticket.description = description ?? ticket.description;
+    ticket.status = status ?? ticket.status;
+    ticket.source = source ?? ticket.source;
+    ticket.priority = priority ?? ticket.priority;
+    ticket.owner = owner ?? ticket.owner;
+    ticket.associatedDealId = validDealId;
+    ticket.associatedCompanyId = validCompanyId;
+
+    const updated = await ticket.save();
+
+    res.status(200).json(updated);
+  } catch (error) {
+    console.error("UPDATE TICKET ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= DELETE ================= */
+export const deleteTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.status(200).json({ message: "Ticket deleted successfully" });
+  } catch (error) {
+    console.error("DELETE TICKET ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
