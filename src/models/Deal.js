@@ -11,6 +11,8 @@ const dealSchema = new mongoose.Schema(
         "Contract Sent",
         "Appointment Scheduled",
         "Decision Maker Bought In",
+        "Proposal Sent",
+        "Negotiation",
         "Closed Won",
         "Closed Lost",
       ],

@@ -8,6 +8,7 @@ import callRoutes from "./routes/callRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import meetingRoutes from "./routes/meetingRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
 
@@ -23,6 +24,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/calls", callRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/meetings", meetingRoutes);
+app.use("/api/activities", activityRoutes);
 
 app.use(errorHandler);
 

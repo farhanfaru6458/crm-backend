@@ -1,3 +1,5 @@
+import { generateOTP } from "../utils/generateOtp.js";
+import { sendEmail } from "../utils/sendEmail.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -17,6 +19,7 @@ const generateToken = (id) => {
   );
 };
 
+
 /* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
   try {
@@ -32,7 +35,6 @@ export const registerUser = async (req, res) => {
       confirmPassword,
     } = req.body;
 
-    /*  Validate Required Fields */
     if (
       !firstName ||
       !lastName ||
@@ -44,34 +46,25 @@ export const registerUser = async (req, res) => {
       !password ||
       !confirmPassword
     ) {
-      return res.status(400).json({
-        message: "All fields are required",
-      });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    /*  Password Match Check */
     if (password !== confirmPassword) {
-      return res.status(400).json({
-        message: "Passwords do not match",
-      });
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    /*  Normalize Email */
     const normalizedEmail = email.toLowerCase();
 
-    /*  Check Existing User */
     const userExists = await User.findOne({ email: normalizedEmail });
-
     if (userExists) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    /*  Hash Password */
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    /*  Create User */
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
     const user = await User.create({
       firstName,
       lastName,
@@ -81,13 +74,80 @@ export const registerUser = async (req, res) => {
       industry,
       country,
       password: hashedPassword,
+      otp: hashedOTP,
+      otpExpiry: Date.now() + 5 * 60 * 1000,
     });
 
-    /*  Generate Token (Auto Login After Register) */
-    const token = generateToken(user._id);
+    await sendEmail(
+      normalizedEmail,
+      "CRM Email Verification",
+      `Your OTP is ${otp}. It expires in 5 minutes.`
+    );
 
     res.status(201).json({
-      message: "User registered successfully",
+      message: "OTP sent to your email",
+      userId: user._id,
+    });
+
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+/* ================= VERIFY OTP (BY EMAIL) ================= */
+export const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        message: "Email and OTP are required",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        message: "Email already verified",
+      });
+    }
+
+    if (!user.otp || user.otpExpiry < Date.now()) {
+      return res.status(400).json({
+        message: "OTP expired",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.otp);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+      });
+    }
+
+    user.isVerified = true;
+    user.otp = null;
+    user.otpExpiry = null;
+
+    await user.save();
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      message: "Email verified successfully",
       token,
       user: {
         id: user._id,
@@ -97,13 +157,15 @@ export const registerUser = async (req, res) => {
         role: user.role,
       },
     });
+
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
+    console.error("VERIFY OTP ERROR:", error);
     res.status(500).json({
       message: "Server error",
     });
   }
 };
+
 
 /* ================= LOGIN ================= */
 export const loginUser = async (req, res) => {
@@ -119,13 +181,19 @@ export const loginUser = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
+  const user = await User.findOne({ email: normalizedEmail });
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid email or password",
-      });
-    }
+if (!user) {
+  return res.status(400).json({
+    message: "Invalid email or password",
+  });
+}
+
+if (!user.isVerified) {
+  return res.status(400).json({
+    message: "Please verify your email first",
+  });
+}
 
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -160,6 +228,37 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+/* ================= RESEND OTP ================= */
+export const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    user.otp = hashedOTP;
+    user.otpExpiry = Date.now() + 5 * 60 * 1000;
+
+    await user.save();
+
+    await sendEmail(
+      user.email,
+      "CRM OTP Resend",
+      `Your new OTP is ${otp}. It expires in 5 minutes.`
+    );
+
+    res.json({ message: "OTP resent successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 /* ================= GET PROFILE ================= */
 export const getUserProfile = async (req, res) => {

@@ -1,4 +1,4 @@
-import Company from "../models/companyModel.js";
+import Company from "../models/Company.js";
 
 /**
  * @desc    Create Company
@@ -12,6 +12,25 @@ export const createCompany = async (req, res) => {
       success: true,
       message: "Company created successfully",
       data: company,
+    });
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * @desc    Bulk Create Companies
+ * @route   POST /api/companies/bulk-create
+ */
+export const bulkCreateCompanies = async (req, res) => {
+  try {
+    const companies = await Company.insertMany(req.body);
+
+    res.status(201).json({
+      success: true,
+      message: `${companies.length} companies created successfully`,
+      data: companies,
     });
   } catch (error) {
     res.status(400);
@@ -152,6 +171,33 @@ export const deleteCompany = async (req, res) => {
     res.json({
       success: true,
       message: "Company deleted successfully",
+    });
+  } catch (error) {
+    res.status(500);
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * @desc    Bulk Delete Companies
+ * @route   POST /api/companies/bulk-delete
+ */
+export const bulkDeleteCompanies = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of IDs",
+      });
+    }
+
+    await Company.deleteMany({ _id: { $in: ids } });
+
+    res.json({
+      success: true,
+      message: `${ids.length} companies deleted successfully`,
     });
   } catch (error) {
     res.status(500);

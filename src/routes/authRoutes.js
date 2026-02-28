@@ -4,6 +4,8 @@ import {
   loginUser,
   getUserProfile,
   updateProfile,
+  verifyOTP,
+  resendOTP,
 } from "../controllers/authController.js";
 
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
@@ -22,4 +24,7 @@ router.get("/admin-test", protect, adminOnly, (req, res) => {
   res.json({ message: "Welcome Admin " });
 });
 
+/* ================= OTP VERIFICATION ================= */
+router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
 export default router;

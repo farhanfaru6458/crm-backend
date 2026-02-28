@@ -12,7 +12,7 @@ const leadSchema = new mongoose.Schema(
     owner: { type: [String], default: [] },
     status: {
       type: String,
-      enum: ["Open", "New", "In Progress"],
+      enum: ["Contacted","Qualified","Unqualified","Converted", "New", "In Progress"],
       default: "Open",
     },
     createdDate: { type: String },
