@@ -53,7 +53,7 @@ const importData = async () => {
 
     await Deal.insertMany(deals);
 
-    console.log("🔥 Multi-Year Deals Inserted (2020–2026)");
+    console.log("Multi-Year Deals Inserted (2020–2026)");
     process.exit();
 
   } catch (error) {

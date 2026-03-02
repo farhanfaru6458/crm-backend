@@ -44,12 +44,17 @@ const userSchema = new mongoose.Schema(
       default: "user",
       enum: ["user", "admin"],
     },
-     isVerified: { type: Boolean, default: false },
+
+    //  Email Verification
+    isVerified: { type: Boolean, default: false },
     otp: { type: String },
     otpExpiry: { type: Date },
-  
+
+    //  Forgot Password Reset
+    resetPasswordOTP: { type: String },
+    resetPasswordExpiry: { type: Date },
+
   },
-  
   { timestamps: true }
 );
 

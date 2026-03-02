@@ -47,7 +47,7 @@ const importData = async () => {
   try {
     await Lead.deleteMany();
     await Lead.insertMany(leads);
-    console.log("🔥 Multi-Year Leads Inserted (2020–2026)");
+    console.log("Multi-Year Leads Inserted (2020–2026)");
     process.exit();
   } catch (error) {
     console.error(error);

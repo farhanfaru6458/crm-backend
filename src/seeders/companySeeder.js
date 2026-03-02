@@ -68,7 +68,7 @@ const companies = [
     revenue: "650000"
   },
 
-  // 🔥 Remaining 19 (Shortened Here For Clarity)
+  // Remaining 19 (Shortened Here For Clarity)
   {
     name: "Skyline Tech",
     owner: "Emma",
@@ -133,13 +133,13 @@ const companies = [
 
 const importData = async () => {
   try {
-    await Company.deleteMany(); // 🔥 Clears old data
+    await Company.deleteMany(); //  Clears old data
     await Company.insertMany(companies);
 
-    console.log("✅ Company Data Imported!");
+    console.log(" Company Data Imported!");
     process.exit();
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error(" Error:", error);
     process.exit(1);
   }
 };

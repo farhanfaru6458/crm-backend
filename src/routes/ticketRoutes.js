@@ -5,6 +5,8 @@ import {
   getTicketById,
   updateTicket,
   deleteTicket,
+  bulkCreateTickets,
+  bulkDeleteTickets,
 } from "../controllers/ticketController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -13,6 +15,8 @@ const router = express.Router();
 router.use(protect); // protect all routes
 
 router.post("/", createTicket);
+router.post("/bulk-create", bulkCreateTickets);
+router.post("/bulk-delete", bulkDeleteTickets);
 router.get("/", getTickets);
 router.get("/:id", getTicketById);
 router.put("/:id", updateTicket);

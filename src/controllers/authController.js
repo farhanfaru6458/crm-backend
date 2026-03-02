@@ -314,3 +314,66 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+/* ================= FORGOT PASSWORD ================= */
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    user.resetPasswordOTP = hashedOTP;
+    user.resetPasswordExpiry = Date.now() + 10 * 60 * 1000; // 10 mins
+    await user.save();
+
+    await sendEmail(
+      user.email,
+      "Password Reset OTP",
+      `Your password reset OTP is ${otp}. It expires in 10 minutes.`
+    );
+
+    res.json({ message: "Reset OTP sent to your email" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= RESET PASSWORD ================= */
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.resetPasswordExpiry < Date.now()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.resetPasswordOTP);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordOTP = null;
+    user.resetPasswordExpiry = null;
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -6,6 +6,8 @@ import {
   updateProfile,
   verifyOTP,
   resendOTP,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/authController.js";
 
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
@@ -28,3 +30,10 @@ router.get("/admin-test", protect, adminOnly, (req, res) => {
 router.post("/verify-otp", verifyOTP);
 router.post("/resend-otp", resendOTP);
 export default router;
+
+
+
+/* ================= FORGOT PASSWORD ================= */
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+
