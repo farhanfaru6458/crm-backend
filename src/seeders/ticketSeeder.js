@@ -4,68 +4,114 @@ import connectDB from "../config/db.js";
 import Ticket from "../models/Ticket.js";
 import Deal from "../models/Deal.js";
 import Company from "../models/Company.js";
-import User from "../models/User.js";
 
 dotenv.config();
-await connectDB();
 
-const statuses = ["New", "Waiting on us", "Waiting on contact"];
-const sources = ["Chat", "Email", "Phone"];
-const priorities = ["High", "Medium", "Low"];
-const owners = [
-  "Jane Cooper",
-  "Wade Warren",
-  "Brooklyn Simmons",
-  "Leslie Alexander",
+const tickets = [
+  {
+    ticketName: "Issue with Login",
+    description: "User unable to login with correct credentials.",
+    status: "New",
+    source: "Email",
+    priority: "High",
+    owner: "Jane Cooper",
+  },
+  {
+    ticketName: "Dashboard Loading Slow",
+    description: "The dashboard takes more than 10 seconds to load.",
+    status: "Waiting on us",
+    source: "Phone",
+    priority: "Medium",
+    owner: "Wade Warren",
+  },
+  {
+    ticketName: "Feature Request: Export Leads",
+    description: "Customer wants to export leads to CSV format.",
+    status: "New",
+    source: "Chat",
+    priority: "Low",
+    owner: "Brooklyn Simmons",
+  },
+  {
+    ticketName: "Missing Data in Reports",
+    description: "Reports are not showing the latest deals.",
+    status: "Waiting on contact",
+    source: "Email",
+    priority: "High",
+    owner: "Leslie Alexander",
+  },
+  {
+    ticketName: "Payment Gateway Error",
+    description: "Users getting 500 error on payment page.",
+    status: "New",
+    source: "Phone",
+    priority: "High",
+    owner: "Jane Cooper",
+  },
+  {
+    ticketName: "Mobile App Crash",
+    description: "App crashes when opening ticket details.",
+    status: "Waiting on us",
+    source: "Chat",
+    priority: "Medium",
+    owner: "Wade Warren",
+  },
+  {
+    ticketName: "Update Documentation",
+    description: "The API documentation is outdated.",
+    status: "New",
+    source: "Email",
+    priority: "Low",
+    owner: "Brooklyn Simmons",
+  },
+  {
+    ticketName: "UI Alignment Issue",
+    description: "Button is not aligned on the settings page.",
+    status: "Waiting on contact",
+    source: "Chat",
+    priority: "Low",
+    owner: "Leslie Alexander",
+  },
+  {
+    ticketName: "Security Vulnerability",
+    description: "Potential XSS found in comments section.",
+    status: "New",
+    source: "Email",
+    priority: "High",
+    owner: "Jane Cooper",
+  },
+  {
+    ticketName: "Broken Links in Footer",
+    description: "The 'Privacy Policy' link is broken.",
+    status: "Waiting on us",
+    source: "Chat",
+    priority: "Low",
+    owner: "Wade Warren",
+  }
 ];
 
 const importData = async () => {
   try {
-    await Ticket.deleteMany();
-
+    await connectDB();
+    
+    // We optionally link some tickets to existing deals or companies if they exist
     const deals = await Deal.find();
     const companies = await Company.find();
-    const user = await User.findOne();
 
-    if (!user) {
-      console.log("❌ No user found. Create user first.");
-      process.exit();
-    }
+    const finalTickets = tickets.map((t, index) => {
+        const enhancedTicket = { ...t };
+        if (index === 0 && deals.length > 0) enhancedTicket.associatedDealId = deals[0]._id;
+        if (index === 1 && companies.length > 0) enhancedTicket.associatedCompanyId = companies[0]._id;
+        return enhancedTicket;
+    });
 
-    const tickets = [];
+    await Ticket.deleteMany(); // Clear old data for a fresh seed
+    await Ticket.insertMany(finalTickets);
 
-    for (let i = 1; i <= 20; i++) {
-
-      const linkToDeal = Math.random() > 0.5 && deals.length > 0;
-
-      const randomDeal = linkToDeal
-        ? deals[Math.floor(Math.random() * deals.length)]
-        : null;
-
-      const randomCompany = !linkToDeal && companies.length > 0
-        ? companies[Math.floor(Math.random() * companies.length)]
-        : null;
-
-      tickets.push({
-        ticketName: `Support Ticket ${i}`,
-        description: "Customer reported an issue with CRM performance.",
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-        source: sources[Math.floor(Math.random() * sources.length)],
-        priority: priorities[Math.floor(Math.random() * priorities.length)],
-        owner: owners[Math.floor(Math.random() * owners.length)],
-        associatedDealId: randomDeal ? randomDeal._id : null,
-        associatedCompanyId: randomCompany ? randomCompany._id : null,
-        user: user._id,
-      });
-    }
-
-    await Ticket.insertMany(tickets);
-
-    console.log("20 Tickets Inserted Successfully");
+    console.log("Ticket Data Imported Successfully!");
     process.exit();
-
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error);
     process.exit(1);
   }
 };

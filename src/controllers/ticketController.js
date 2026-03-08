@@ -40,7 +40,7 @@ export const createTicket = async (req, res) => {
       owner,
       associatedDealId: validDealId,
       associatedCompanyId: validCompanyId,
-      user: req.user.id,
+      user: req.user?.id || null,
     });
 
     res.status(201).json(ticket);
@@ -53,7 +53,7 @@ export const createTicket = async (req, res) => {
 /* ================= GET ALL ================= */
 export const getTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find({ user: req.user.id })
+    const tickets = await Ticket.find()
       .populate("associatedDealId", "dealName")
       .populate("associatedCompanyId", "name")
       .sort({ createdAt: -1 });
@@ -68,10 +68,7 @@ export const getTickets = async (req, res) => {
 /* ================= GET SINGLE ================= */
 export const getTicketById = async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({
-      _id: req.params.id,
-      user: req.user.id,
-    })
+    const ticket = await Ticket.findById(req.params.id)
       .populate("associatedDealId", "dealName")
       .populate("associatedCompanyId", "name");
 
@@ -87,10 +84,7 @@ export const getTicketById = async (req, res) => {
 /* ================= UPDATE ================= */
 export const updateTicket = async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({
-      _id: req.params.id,
-      user: req.user.id,
-    });
+    const ticket = await Ticket.findById(req.params.id);
 
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
@@ -132,10 +126,7 @@ export const updateTicket = async (req, res) => {
 /* ================= DELETE ================= */
 export const deleteTicket = async (req, res) => {
   try {
-    const ticket = await Ticket.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user.id,
-    });
+    const ticket = await Ticket.findByIdAndDelete(req.params.id);
 
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
@@ -149,7 +140,7 @@ export const deleteTicket = async (req, res) => {
 /* ================= BULK CREATE ================= */
 export const bulkCreateTickets = async (req, res) => {
   try {
-    const tickets = req.body.map(t => ({ ...t, user: req.user.id }));
+    const tickets = req.body.map(t => ({ ...t, user: req.user?.id || null }));
     const normalize = (v) => v ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase() : v;
     
     tickets.forEach(t => {
@@ -170,7 +161,7 @@ export const bulkCreateTickets = async (req, res) => {
 export const bulkDeleteTickets = async (req, res) => {
   try {
     const { ids } = req.body;
-    await Ticket.deleteMany({ _id: { $in: ids }, user: req.user.id });
+    await Ticket.deleteMany({ _id: { $in: ids } });
     res.status(200).json({ success: true, message: "Tickets deleted successfully" });
   } catch (error) {
     console.error("BULK DELETE ERROR:", error);

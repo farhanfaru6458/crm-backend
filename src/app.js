@@ -11,6 +11,7 @@ import companyRoutes from "./routes/companyRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 
 
@@ -26,6 +27,7 @@ app.use("/api/calls", callRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(errorHandler);
 

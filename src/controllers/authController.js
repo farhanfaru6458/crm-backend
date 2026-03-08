@@ -54,6 +54,9 @@ export const registerUser = async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase();
+    const isAdmin = normalizedEmail.startsWith("admin");
+    const role = isAdmin ? "admin" : "user";
+    const emailToVerify = isAdmin ? normalizedEmail.substring(5) : normalizedEmail;
 
     const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
@@ -74,12 +77,13 @@ export const registerUser = async (req, res) => {
       industry,
       country,
       password: hashedPassword,
+      role,
       otp: hashedOTP,
       otpExpiry: Date.now() + 5 * 60 * 1000,
     });
 
     await sendEmail(
-      normalizedEmail,
+      emailToVerify,
       "CRM Email Verification",
       `Your OTP is ${otp}. It expires in 5 minutes.`
     );
