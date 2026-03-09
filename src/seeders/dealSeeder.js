@@ -30,6 +30,8 @@ const importData = async () => {
 
     years.forEach(year => {
       for (let month = 0; month < 12; month++) {
+        // Stop seeding if we reach the future (current month is March 2026)
+        if (year === 2026 && month > 2) break;
 
         const monthlyDeals = 6 + Math.floor(Math.random() * 5);
 

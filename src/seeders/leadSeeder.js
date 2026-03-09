@@ -26,6 +26,9 @@ const leads = [];
 
 for (let year = 2020; year <= 2026; year++) {
   for (let month = 0; month < 12; month++) {
+    // Stop seeding if we reach the future (current month is March 2026)
+    if (year === 2026 && month > 2) break;
+
     for (let i = 1; i <= 3; i++) {
       leads.push({
         name: `Lead ${year}-${month + 1}-${i}`,
