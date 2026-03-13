@@ -31,7 +31,7 @@ const ticketSchema = new mongoose.Schema(
     },
 
     owner: {
-      type: String,
+      type: [String],
       required: true,
     },
 

@@ -70,6 +70,7 @@ export const getCompanies = async (req, res) => {
     if (industry) query.industry = industry;
     if (city) query.city = city;
     if (country) query.country = country;
+    // if (leadStatus) query.leadStatus = leadStatus;
 
     //  Date Range Filter
     if (from || to) {

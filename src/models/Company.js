@@ -8,7 +8,7 @@ const companySchema = new mongoose.Schema(
       trim: true,
     },
     owner: {
-      type: String,
+      type: [String],
       required: true,
     },
     phone: {
@@ -39,6 +39,10 @@ const companySchema = new mongoose.Schema(
     revenue: {
       type: String,
     },
+    // leadStatus: {
+    //   type: String,
+    //   default: "New",
+    // },
   },
   { timestamps: true }
 );

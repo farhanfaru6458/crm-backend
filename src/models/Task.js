@@ -12,6 +12,7 @@ const taskSchema = new mongoose.Schema(
       default: "Medium",
     },
     taskType: { type: String, default: "To-Do" },
+    assignedTo: { type: String, default: "" },
     completed: { type: Boolean, default: false },
     entityId: {
       type: mongoose.Schema.Types.ObjectId,
