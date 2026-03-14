@@ -17,7 +17,8 @@ const companies = [
     domain: "technova.com",
     type: "Client",
     employees: "50-100",
-    revenue: "500000"
+    revenue: "500000",
+    email: "contact@technova.com"
   },
   {
     name: "Maple Legal Group",
@@ -29,7 +30,8 @@ const companies = [
     domain: "maplelegal.ca",
     type: "Partner",
     employees: "20-50",
-    revenue: "200000"
+    revenue: "200000",
+    email: "info@maplelegal.ca"
   },
   {
     name: "HealthBridge Clinic",
@@ -41,7 +43,8 @@ const companies = [
     domain: "healthbridge.nl",
     type: "Client",
     employees: "100-200",
-    revenue: "800000"
+    revenue: "800000",
+    email: "hello@healthbridge.nl"
   },
   {
     name: "BluePeak Finance",
@@ -53,7 +56,8 @@ const companies = [
     domain: "bluepeak.co.uk",
     type: "Vendor",
     employees: "200-500",
-    revenue: "1200000"
+    revenue: "1200000",
+    email: "support@bluepeak.co.uk"
   },
   {
     name: "UrbanNest Realty",
@@ -65,7 +69,8 @@ const companies = [
     domain: "urbannest.ae",
     type: "Client",
     employees: "50-100",
-    revenue: "650000"
+    revenue: "650000",
+    email: "sales@urbannest.ae"
   },
 
   // Remaining 19 (Shortened Here For Clarity)
@@ -79,7 +84,8 @@ const companies = [
     domain: "skylinetech.com",
     type: "Client",
     employees: "100-200",
-    revenue: "950000"
+    revenue: "950000",
+    email: "info@skylinetech.com"
   },
   {
     name: "PrimeCare Health",
@@ -91,7 +97,8 @@ const companies = [
     domain: "primecare.au",
     type: "Partner",
     employees: "50-100",
-    revenue: "400000"
+    revenue: "400000",
+    email: "contact@primecare.au"
   },
   {
     name: "Atlas Infra",
@@ -103,7 +110,8 @@ const companies = [
     domain: "atlasinfra.in",
     type: "Client",
     employees: "500-1000",
-    revenue: "5000000"
+    revenue: "5000000",
+    email: "hello@atlasinfra.in"
   },
   {
     name: "FinCore Banking",
@@ -115,7 +123,8 @@ const companies = [
     domain: "fincore.sg",
     type: "Vendor",
     employees: "200-500",
-    revenue: "3000000"
+    revenue: "3000000",
+    email: "admin@fincore.sg"
   },
   {
     name: "GreenEarth Realty",
@@ -127,7 +136,8 @@ const companies = [
     domain: "greenearth.de",
     type: "Client",
     employees: "50-100",
-    revenue: "750000"
+    revenue: "750000",
+    email: "sales@greenearth.de"
   }
 ];
 

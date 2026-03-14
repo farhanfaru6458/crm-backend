@@ -26,6 +26,9 @@ const companySchema = new mongoose.Schema(
     },
 
     // 🔥 New Fields
+    email: {
+      type: String,
+    },
     domain: {
       type: String,
     },
