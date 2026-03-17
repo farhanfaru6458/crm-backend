@@ -47,6 +47,7 @@ const ticketSchema = new mongoose.Schema(
       ref: "Company",
       default: null,
     },
+    email: { type: String, default: "" },
 
     // Ticket belongs to logged in user
     user: {

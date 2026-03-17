@@ -1,4 +1,6 @@
 import Lead from "../models/Lead.js";
+import Deal from "../models/Deal.js";
+import Ticket from "../models/Ticket.js";
 
 export const getLeads = async (req, res, next) => {
   try {
@@ -48,10 +50,29 @@ export const updateLead = async (req, res, next) => {
       throw new Error("Lead not found");
     }
 
+    const oldEmail = lead.email;
     const updatedLead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+
+    // Propagate email change to deals and their associated tickets
+    if (updatedLead.email !== oldEmail) {
+      // Update Deals
+      await Deal.updateMany(
+        { associatedLeadId: updatedLead._id },
+        { email: updatedLead.email }
+      );
+
+      // Find all deals for this lead to update their tickets
+      const dealIds = await Deal.find({ associatedLeadId: updatedLead._id }).distinct('_id');
+      if (dealIds.length > 0) {
+        await Ticket.updateMany(
+          { associatedDealId: { $in: dealIds } },
+          { email: updatedLead.email }
+        );
+      }
+    }
 
     res.status(200).json({ success: true, data: updatedLead });
   } catch (error) {

@@ -7,6 +7,7 @@ import {
   deleteTicket,
   bulkCreateTickets,
   bulkDeleteTickets,
+  syncTicketEmails,
 } from "../controllers/ticketController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -17,6 +18,7 @@ router.use(protect); // protect all routes
 router.post("/", createTicket);
 router.post("/bulk-create", bulkCreateTickets);
 router.post("/bulk-delete", bulkDeleteTickets);
+router.post("/sync-emails", syncTicketEmails);
 router.get("/", getTickets);
 router.get("/:id", getTicketById);
 router.put("/:id", updateTicket);

@@ -1,4 +1,5 @@
 import Company from "../models/Company.js";
+import Ticket from "../models/Ticket.js";
 
 /**
  * @desc    Create Company
@@ -137,11 +138,20 @@ export const updateCompany = async (req, res) => {
       throw new Error("Company not found");
     }
 
+    const oldEmail = company.email;
     const updatedCompany = await Company.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
+
+    // Propagate email change to tickets
+    if (updatedCompany.email && updatedCompany.email !== oldEmail) {
+      await Ticket.updateMany(
+        { associatedCompanyId: updatedCompany._id },
+        { email: updatedCompany.email }
+      );
+    }
 
     res.json({
       success: true,

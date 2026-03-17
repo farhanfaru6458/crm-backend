@@ -29,6 +29,7 @@ const dealSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Lead",
     },
+    email: { type: String, default: "" },
   },
   {
     timestamps: true,
