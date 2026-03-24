@@ -94,6 +94,7 @@ export const registerUser = async (req, res) => {
     res.status(201).json({
       message: "OTP sent to your email",
       userId: user._id,
+      devOtp: otp, // remove this after email is confirmed working
     });
 
   } catch (error) {
@@ -216,6 +217,7 @@ if (!user.isVerified) {
 
   return res.status(400).json({
     message: "Please verify your email first",
+    devOtp: otp, // remove this after email is confirmed working
   });
 }
     const isMatch = await bcrypt.compare(password, user.password);
