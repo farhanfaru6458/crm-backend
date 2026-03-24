@@ -6,14 +6,12 @@ dotenv.config();
 connectDB();
 
 const PORT = process.env.PORT || 5000;
-const HOST = "http://localhost";
 
 app.listen(PORT, () => {
   console.log("========================================");
-  console.log(`Server running at: ${HOST}:${PORT}/api`);
+  console.log(`Server running on port ${PORT}`);
   console.log("========================================");
 });
-
 
 // ================================================================================
 // to implement data in terminal type node src/seeders/companySeeder.js         === 
