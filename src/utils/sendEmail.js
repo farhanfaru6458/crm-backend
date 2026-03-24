@@ -1,33 +1,51 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Attempts to send an email via Gmail SMTP.
+ * Throws if it fails.
+ */
 export const sendEmail = async (to, subject, text) => {
-  console.log(`[sendEmail] Attempting to send email to: ${to}`);
-  console.log(`[sendEmail] EMAIL_USER set: ${!!process.env.EMAIL_USER}`);
-  console.log(`[sendEmail] EMAIL_PASS set: ${!!process.env.EMAIL_PASS}`);
+  const EMAIL_USER = process.env.EMAIL_USER;
+  const EMAIL_PASS = process.env.EMAIL_PASS;
+
+  console.log(`[sendEmail] Sending to: ${to} | USER_SET: ${!!EMAIL_USER} | PASS_SET: ${!!EMAIL_PASS}`);
+
+  if (!EMAIL_USER || !EMAIL_PASS) {
+    throw new Error("EMAIL_USER or EMAIL_PASS environment variable is not set.");
+  }
 
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // use STARTTLS
+    secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: EMAIL_USER,
+      pass: EMAIL_PASS,
     },
+    connectionTimeout: 8000,   // 8s — fail fast on Render SMTP block
+    greetingTimeout: 8000,
+    socketTimeout: 10000,
     tls: {
       rejectUnauthorized: false,
     },
   });
 
-  try {
-    const info = await transporter.sendMail({
-      from: `"CRM App" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      text,
-    });
-    console.log(`[sendEmail] Email sent successfully. MessageId: ${info.messageId}`);
-  } catch (err) {
-    console.error(`[sendEmail] FAILED to send email to ${to}:`, err.message);
-    throw err; // re-throw so caller can handle
-  }
+  const info = await transporter.sendMail({
+    from: `"CRM App" <${EMAIL_USER}>`,
+    to,
+    subject,
+    text,
+  });
+
+  console.log(`[sendEmail] Sent! MessageId: ${info.messageId}`);
+};
+
+/**
+ * Fire-and-forget wrapper — sends email in background.
+ * The caller gets an instant response; email errors only appear in logs.
+ */
+export const sendEmailAsync = (to, subject, text) => {
+  sendEmail(to, subject, text).catch((err) => {
+    console.error(`[sendEmailAsync] Failed to send email to ${to}: ${err.message}`);
+  });
 };

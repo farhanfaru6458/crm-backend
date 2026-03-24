@@ -1,5 +1,5 @@
 import { generateOTP } from "../utils/generateOtp.js";
-import { sendEmail } from "../utils/sendEmail.js";
+import { sendEmailAsync } from "../utils/sendEmail.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -84,15 +84,12 @@ export const registerUser = async (req, res) => {
 
     console.log(`[REGISTER] OTP for ${emailToVerify}: ${otp}`);
 
-    try {
-      await sendEmail(
-        emailToVerify,
-        "CRM Email Verification",
-        `Your OTP is ${otp}. It expires in 5 minutes.`
-      );
-    } catch (emailErr) {
-      console.error("[REGISTER] Email send failed (user still created):", emailErr.message);
-    }
+    // Fire-and-forget — response is instant, email sends in background
+    sendEmailAsync(
+      emailToVerify,
+      "CRM Email Verification",
+      `Your OTP is ${otp}. It expires in 5 minutes.`
+    );
 
     res.status(201).json({
       message: "OTP sent to your email",
@@ -210,15 +207,12 @@ if (!user.isVerified) {
 
   console.log(`[LOGIN] OTP for unverified user ${user.email}: ${otp}`);
 
-  try {
-    await sendEmail(
-      user.email,
-      "CRM Email Verification",
-      `Your OTP is ${otp}. It expires in 5 minutes.`
-    );
-  } catch (emailErr) {
-    console.error("[LOGIN] Email send failed (OTP still set):", emailErr.message);
-  }
+  // Fire-and-forget — response is instant, email sends in background
+  sendEmailAsync(
+    user.email,
+    "CRM Email Verification",
+    `Your OTP is ${otp}. It expires in 5 minutes.`
+  );
 
   return res.status(400).json({
     message: "Please verify your email first",
@@ -277,15 +271,12 @@ export const resendOTP = async (req, res) => {
 
     console.log(`[RESEND OTP] OTP for ${user.email}: ${otp}`);
 
-    try {
-      await sendEmail(
-        user.email,
-        "CRM OTP Resend",
-        `Your new OTP is ${otp}. It expires in 5 minutes.`
-      );
-    } catch (emailErr) {
-      console.error("[RESEND OTP] Email send failed (OTP still updated):", emailErr.message);
-    }
+    // Fire-and-forget — response is instant, email sends in background
+    sendEmailAsync(
+      user.email,
+      "CRM OTP Resend",
+      `Your new OTP is ${otp}. It expires in 5 minutes.`
+    );
 
     res.json({ message: "OTP resent successfully" });
 
@@ -370,15 +361,12 @@ export const forgotPassword = async (req, res) => {
 
     console.log(`[FORGOT PASSWORD] OTP for ${user.email}: ${otp}`);
 
-    try {
-      await sendEmail(
-        user.email,
-        "Password Reset OTP",
-        `Your password reset OTP is ${otp}. It expires in 10 minutes.`
-      );
-    } catch (emailErr) {
-      console.error("[FORGOT PASSWORD] Email send failed (OTP still set):", emailErr.message);
-    }
+    // Fire-and-forget — response is instant, email sends in background
+    sendEmailAsync(
+      user.email,
+      "Password Reset OTP",
+      `Your password reset OTP is ${otp}. It expires in 10 minutes.`
+    );
 
     res.json({ message: "Reset OTP sent to your email" });
 
