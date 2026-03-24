@@ -194,11 +194,24 @@ if (!user) {
 }
 
 if (!user.isVerified) {
+  const otp = generateOTP();
+  const hashedOTP = await bcrypt.hash(otp, 10);
+
+  user.otp = hashedOTP;
+  user.otpExpiry = Date.now() + 5 * 60 * 1000;
+
+  await user.save();
+
+  await sendEmail(
+    user.email,
+    "CRM Email Verification",
+    `Your OTP is ${otp}. It expires in 5 minutes.`
+  );
+
   return res.status(400).json({
     message: "Please verify your email first",
   });
 }
-
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
